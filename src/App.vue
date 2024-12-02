@@ -11,6 +11,7 @@ const saturation = ref<number>(25);
 const lightness = ref<number>(50);
 const colorsToDisplay = ref<ColorSwatchData[]>([]);
 const isLoading = ref<boolean>(false);
+const errorMessage = ref<string>('');
 
 const generatedFullHSLColorRange = computed(() => {
   return Array.from({ length: TOTAL_HUES }, (_, hue) => ({
@@ -21,6 +22,7 @@ const generatedFullHSLColorRange = computed(() => {
 
 const fetchColorData = async () => {
   isLoading.value = true;
+  errorMessage.value = '';
 
   try {
     const colors = generatedFullHSLColorRange.value;
@@ -47,6 +49,7 @@ const fetchColorData = async () => {
     colorsToDisplay.value = results;
   } catch (error) {
     console.error('Error:', error);
+    errorMessage.value = 'Failed to load colors. Please try again.';
   } finally {
     isLoading.value = false;
   }
@@ -67,6 +70,8 @@ watch([saturation, lightness], () => {
       <SliderControl label="Saturation" v-model="saturation" />
       <SliderControl label="Lightness" v-model="lightness" />
     </div>
+
+    <div v-if="errorMessage" class="error-msg">{{ errorMessage }}</div>
 
     <div v-if="isLoading">Loading...</div>
 
@@ -91,5 +96,10 @@ watch([saturation, lightness], () => {
   flex-wrap: wrap;
   gap: 1rem;
   justify-content: flex-start;
+}
+
+.error-msg {
+  color: red;
+  font-weight: bold;
 }
 </style>
