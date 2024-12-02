@@ -13,6 +13,8 @@ const colorsToDisplay = ref<ColorSwatchData[]>([]);
 const isLoading = ref<boolean>(false);
 const errorMessage = ref<string>('');
 
+const colorCache = ref<Record<string, ColorSwatchData[]>>({});
+
 const generatedFullHSLColorRange = computed(() => {
   return Array.from({ length: TOTAL_HUES }, (_, hue) => ({
     hsl: `hsl(${hue}, ${saturation.value}%, ${lightness.value}%)`,
@@ -23,6 +25,14 @@ const generatedFullHSLColorRange = computed(() => {
 const fetchColorData = async () => {
   isLoading.value = true;
   errorMessage.value = '';
+
+  const cacheKey = `${saturation.value}-${lightness.value}`;
+
+  if (colorCache.value[cacheKey]) {
+    colorsToDisplay.value = colorCache.value[cacheKey];
+    isLoading.value = false;
+    return;
+  }
 
   try {
     const colors = generatedFullHSLColorRange.value;
@@ -47,6 +57,8 @@ const fetchColorData = async () => {
 
     const results = await Promise.all(colorDataPromises);
     colorsToDisplay.value = results;
+
+    colorCache.value[cacheKey] = results;
   } catch (error) {
     console.error('Error:', error);
     errorMessage.value = 'Failed to load colors. Please try again.';
