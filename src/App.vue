@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watchEffect } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { debounce } from 'moderndash';
 import SliderControl from './components/SliderControl.vue';
 import Swatch from './components/Swatch.vue';
 import type { ColorSwatchData } from './components/Swatch.vue';
@@ -9,6 +10,7 @@ const TOTAL_HUES = 360;
 const saturation = ref<number>(25);
 const lightness = ref<number>(50);
 const colorsToDisplay = ref<ColorSwatchData[]>([]);
+const isLoading = ref<boolean>(false);
 
 const generatedFullHSLColorRange = computed(() => {
   return Array.from({ length: TOTAL_HUES }, (_, hue) => ({
@@ -17,25 +19,44 @@ const generatedFullHSLColorRange = computed(() => {
   }));
 });
 
-const fetchColorData = () => {
-  const colors = generatedFullHSLColorRange.value;
-  const colorList = colors.map((color) => {
-    const hslString = `hsl(${color.hue},${saturation.value}%,${lightness.value}%)`;
+const fetchColorData = async () => {
+  isLoading.value = true;
 
-    return {
-      hsl: hslString,
-      hue: color.hue,
-      name: `Color ${color.hue}`,
-      rgb: '#000000'
-    };
-  });
+  try {
+    const colors = generatedFullHSLColorRange.value;
+    const colorDataPromises = colors.map(async (color): Promise<ColorSwatchData> => {
+      const hslString = `${color.hue},${saturation.value}%,${lightness.value}%`;
+      const response = await fetch(
+        `https://www.thecolorapi.com/id?hsl=${encodeURIComponent(hslString)}`
+      );
 
-  colorsToDisplay.value = colorList;
-};
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
 
-watchEffect(() => {
-  fetchColorData();
-});
+      const data = await response.json();
+
+      return {
+        ...color,
+        name: data.name.value as string,
+        rgb: data.rgb.value as string,
+      };
+    });
+
+    const results = await Promise.all(colorDataPromises);
+    colorsToDisplay.value = results;
+  } catch (error) {
+    console.error('Error:', error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const debouncedFetchColorData = debounce(fetchColorData, 300);
+
+watch([saturation, lightness], () => {
+  debouncedFetchColorData();
+}, { immediate: true });
 </script>
 
 <template>
@@ -47,7 +68,9 @@ watchEffect(() => {
       <SliderControl label="Lightness" v-model="lightness" />
     </div>
 
-    <div class="swatch-grid">
+    <div v-if="isLoading">Loading...</div>
+
+    <div v-else class="swatch-grid">
       <Swatch v-for="color in colorsToDisplay" :key="color.hue" :color="color" />
     </div>
   </main>
