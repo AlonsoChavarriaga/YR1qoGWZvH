@@ -1,23 +1,75 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
+import { ref, computed, watchEffect } from 'vue';
+import SliderControl from './components/SliderControl.vue';
+import Swatch from './components/Swatch.vue';
+import type { ColorSwatchData } from './components/Swatch.vue';
+
+const TOTAL_HUES = 360;
+
+const saturation = ref<number>(25);
+const lightness = ref<number>(50);
+const colorsToDisplay = ref<ColorSwatchData[]>([]);
+
+const generatedFullHSLColorRange = computed(() => {
+  return Array.from({ length: TOTAL_HUES }, (_, hue) => ({
+    hsl: `hsl(${hue}, ${saturation.value}%, ${lightness.value}%)`,
+    hue,
+  }));
+});
+
+const fetchColorData = () => {
+  const colors = generatedFullHSLColorRange.value;
+  const colorList = colors.map((color) => {
+    const hslString = `hsl(${color.hue},${saturation.value}%,${lightness.value}%)`;
+
+    return {
+      hsl: hslString,
+      hue: color.hue,
+      name: `Color ${color.hue}`,
+      rgb: '#000000'
+    };
+  });
+
+  colorsToDisplay.value = colorList;
+};
+
+watchEffect(() => {
+  fetchColorData();
+});
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <main id="app">
+    <h1>Color Swatch</h1>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <div class="controls">
+      <SliderControl label="Saturation" v-model="saturation" />
+      <SliderControl label="Lightness" v-model="lightness" />
     </div>
-  </header>
 
-  <main>
-    <TheWelcome />
+    <div class="swatch-grid">
+      <Swatch v-for="color in colorsToDisplay" :key="color.hue" :color="color" />
+    </div>
   </main>
 </template>
 
 <style scoped>
+#app {
+  margin: 0 auto;
+  padding: 0 var(--section-gap);
+}
+
+.controls {
+  margin: 2rem 0;
+}
+
+.swatch-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+
 header {
   line-height: 1.5;
 }
