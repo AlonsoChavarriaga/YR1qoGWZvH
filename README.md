@@ -1,39 +1,27 @@
-# akkio-assessment
+# Akkio Code Challenge
 
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+This project is a solution to the Akkio Color Swatch challenge
 
 ## Project Setup
+
+Install dependencies:
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+Then run the project locally:
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Summary of Design Decisions
 
-```sh
-npm run build
-```
+I chose to use Vue because it has been a few years since I last worked with it and wanted to brush up on it. To improve the user experience, I used `debounce` from the `moderndash` library, which is a typescript-first, modern version of lodash. I opted for sliders instead of inputs because on a fixed range from 0-100 it seems more intuitive, which combined with the debounced API call, adds a smooth user experience compared to something like number inputs and a "Submit" button. For caching, I implemented a local object that uses `{saturation}-{lightness}` as a key, and prevent API calls if there is a matching key in the cache object.
 
-### Lint with [ESLint](https://eslint.org/)
+For further optimization/performance, I would replace the cache object with localStorage or IndexedDB so the data persists, and if there were many more items to render, I would opt for virtualization using something like `vue-virtual-scroll-grid`.
 
-```sh
-npm run lint
-```
+## Bonus Question
+
+To hypothetically reduce the number of API calls we make, we can use a binary search to do an initial call at the start of a hue, skip ahead (say, 20 values for example), and do another call. If the color name has changed, we cut it in half, do a search again using the middle value, and continue until we find the start and end for each named color.

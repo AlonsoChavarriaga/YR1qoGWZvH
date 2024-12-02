@@ -21,8 +21,6 @@ export interface ColorSwatchData {
 const props = defineProps<{
     color: ColorSwatchData;
 }>();
-
-{ console.log('color', props.color.hsl) }
 </script>
   
 <style scoped>
@@ -39,12 +37,12 @@ const props = defineProps<{
 
 .color-name {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .color-info {
     padding: 6px;
-    font-size: 12px;
+    font-size: 10px;
     text-align: center;
 }
 

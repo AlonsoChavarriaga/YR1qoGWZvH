@@ -104,6 +104,8 @@ watch([saturation, lightness], () => {
 }
 
 .swatch-grid {
+  max-height: calc(100vh - 200px);
+  overflow: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
