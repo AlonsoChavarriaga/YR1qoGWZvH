@@ -79,7 +79,7 @@ watch([saturation, lightness], () => {
 <style scoped>
 #app {
   margin: 0 auto;
-  padding: 0 var(--section-gap);
+  padding: 0 32px;
 }
 
 .controls {
@@ -90,5 +90,6 @@ watch([saturation, lightness], () => {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  justify-content: flex-start;
 }
 </style>

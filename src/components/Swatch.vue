@@ -27,7 +27,7 @@ const props = defineProps<{
   
 <style scoped>
 .swatch {
-    width: 80px;
+    width: 100px;
     border: 1px solid #ddd;
     overflow: hidden;
     border-radius: 4px;
@@ -37,13 +37,19 @@ const props = defineProps<{
     height: 60px;
 }
 
-.color-info {
-    padding: 2px;
+.color-name {
+    font-weight: bold;
     font-size: 14px;
+}
+
+.color-info {
+    padding: 6px;
+    font-size: 12px;
     text-align: center;
 }
 
-.color-name {
+.color-name,
+.rgb-values {
     display: block;
     white-space: nowrap;
 }
